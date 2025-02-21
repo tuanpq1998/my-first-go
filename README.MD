@@ -4,3 +4,5 @@
   `go mod vendor`
 - clean up:
   `go mod tidy`
+- build & run:
+  `go build && ./my-first-go`
