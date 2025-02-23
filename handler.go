@@ -55,6 +55,6 @@ func (apiCfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Reques
 		respondWithError(w, 400, "couldnt create user")
 		return
 	}
-	respondWithJSON(w, 200, newUser)
+	respondWithJSON(w, 200, transformToUserDto(newUser))
 
 }
