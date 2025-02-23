@@ -44,8 +44,16 @@ func main() {
 
 	conn, err := pgx.Connect(context.Background(), dbUrl)
 	if err != nil {
-		log.Fatal("Cant connect to database")
+		log.Fatalf("Cant connect to database: %v", err)
 	}
+
+	err = conn.Ping(context.Background())
+	if err == nil {
+		log.Println("Connected to database")
+	} else {
+		log.Fatalf("Couldnt ping to database: %v", err)
+	}
+
 	apiCfg := apiConfig{
 		DB: database.New(conn),
 	}
