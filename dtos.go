@@ -10,6 +10,7 @@ type UserDto struct {
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 	UpdatedAt pgtype.Timestamp `json:"updated_at"`
 	Name      string           `json:"name"`
+	ApiKey    string           `json:"key"`
 }
 
 func transformToUserDto(dbUser database.User) UserDto {
@@ -18,5 +19,6 @@ func transformToUserDto(dbUser database.User) UserDto {
 		CreatedAt: dbUser.CreatedAt,
 		UpdatedAt: dbUser.UpdatedAt,
 		Name:      dbUser.Name,
+		ApiKey:    dbUser.ApiKey,
 	}
 }

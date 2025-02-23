@@ -13,4 +13,5 @@ type User struct {
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
 	Name      string
+	ApiKey    string
 }
