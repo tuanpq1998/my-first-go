@@ -9,7 +9,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/tuanpq1998/my-first-go/internal/auth"
 	"github.com/tuanpq1998/my-first-go/internal/database"
 )
 
@@ -60,20 +59,6 @@ func (apiCfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Reques
 
 }
 
-func (apiCfg apiConfig) handlerGetUserByKey(w http.ResponseWriter, r *http.Request) {
-	apiKey, err := auth.ParseApiKey(r.Header)
-	if err != nil {
-		log.Println("handlerGetUserByKey::ParseApiKey::error", err, "::apiKey::", apiKey)
-		respondWithError(w, 403, "authentication failed")
-		return
-	}
-
-	user, err := apiCfg.DB.GetUserByApiKey(r.Context(), apiKey)
-	if err != nil {
-		log.Println("handlerGetUserByKey::GetUserByApiKey::error", err, "::apiKey::", apiKey)
-		respondWithError(w, 403, "authentication failed")
-		return
-	}
-
+func (apiCfg apiConfig) handlerGetUserByKey(w http.ResponseWriter, r *http.Request, user database.User) {
 	respondWithJSON(w, 200, transformToUserDto(user))
 }
