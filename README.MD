@@ -17,9 +17,17 @@
 
 ### SQL (with `sqlc` & `goose`)
 
-- up migration (perform "Up" action in migration sql file):
-  `goose postgres [DB_URL] up`
-- down:
-  `goose postgres [DB_URL] down`
+- cd to schema folder: `cd sql/schema`
+  - up migration (perform "Up" action in migration sql file):
+    `goose postgres [DB_URL] up`
+  - down:
+    `goose postgres [DB_URL] down`
+- without cd to schema folder: setting `GOOSE_*` in .env
+  `goose up`
 - generate go-typed - like prisma typescript generate
   `sqlc generate`
+
+## Note:
+
+- this project follows [youtube tutorial](https://www.youtube.com/watch?v=un6ZyFkqFKo) but have some changes due to some dependencies out of date
+- use `pgx/v5` lastest
