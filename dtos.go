@@ -42,3 +42,11 @@ func transformToFeedDto(db database.Feed) FeedDto {
 		UserId:    db.UserID,
 	}
 }
+
+func transformArrToFeedDto(db []database.Feed) []FeedDto {
+	feeds := []FeedDto{}
+	for _, feed := range db {
+		feeds = append(feeds, transformToFeedDto(feed))
+	}
+	return feeds
+}

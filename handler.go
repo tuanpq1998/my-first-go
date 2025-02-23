@@ -102,3 +102,13 @@ func (apiCfg *apiConfig) handlerCreateFeed(w http.ResponseWriter, r *http.Reques
 	}
 	respondWithJSON(w, 201, transformToFeedDto(newFeed))
 }
+
+func (apiCfg apiConfig) handlerGetFeeds(w http.ResponseWriter, r *http.Request) {
+	feeds, err := apiCfg.DB.GetAllFeeds(r.Context())
+	if err != nil {
+		log.Println("handlerGetFeeds::GetAllFeeds::error", err)
+		respondWithError(w, 400, "couldnt get feeds")
+		return
+	}
+	respondWithJSON(w, 201, transformArrToFeedDto(feeds))
+}
