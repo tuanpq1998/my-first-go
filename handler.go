@@ -62,3 +62,43 @@ func (apiCfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Reques
 func (apiCfg apiConfig) handlerGetUserByKey(w http.ResponseWriter, r *http.Request, user database.User) {
 	respondWithJSON(w, 200, transformToUserDto(user))
 }
+
+func (apiCfg *apiConfig) handlerCreateFeed(w http.ResponseWriter, r *http.Request, user database.User) {
+	type parameters struct {
+		Title string `json:"title"`
+		Url   string `json:"url"`
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	params := parameters{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		log.Println("handlerCreateFeed::JSONDecode", err)
+		respondWithError(w, 400, "decode JSON failed")
+		return
+	}
+
+	newFeed, err := apiCfg.DB.CreateFeed(r.Context(), database.CreateFeedParams{
+		ID: pgtype.UUID{
+			Bytes: uuid.New(),
+			Valid: true,
+		},
+		CreatedAt: pgtype.Timestamp{
+			Time:  time.Now().UTC(),
+			Valid: true,
+		},
+		UpdatedAt: pgtype.Timestamp{
+			Time:  time.Now().UTC(),
+			Valid: true,
+		},
+		Title:  params.Title,
+		Url:    params.Url,
+		UserID: user.ID,
+	})
+	if err != nil {
+		log.Println("handlerCreateFeed::CreateFeed::error", err)
+		respondWithError(w, 400, "couldnt create feed")
+		return
+	}
+	respondWithJSON(w, 201, transformToFeedDto(newFeed))
+}

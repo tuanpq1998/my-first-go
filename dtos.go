@@ -13,6 +13,15 @@ type UserDto struct {
 	ApiKey    string           `json:"key"`
 }
 
+type FeedDto struct {
+	ID        pgtype.UUID      `json:"id"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
+	UpdatedAt pgtype.Timestamp `json:"updated_at"`
+	Title     string           `json:"title"`
+	Url       string           `json:"url"`
+	UserId    pgtype.UUID      `json:"user_id"`
+}
+
 func transformToUserDto(dbUser database.User) UserDto {
 	return UserDto{
 		ID:        dbUser.ID,
@@ -20,5 +29,16 @@ func transformToUserDto(dbUser database.User) UserDto {
 		UpdatedAt: dbUser.UpdatedAt,
 		Name:      dbUser.Name,
 		ApiKey:    dbUser.ApiKey,
+	}
+}
+
+func transformToFeedDto(db database.Feed) FeedDto {
+	return FeedDto{
+		ID:        db.ID,
+		CreatedAt: db.CreatedAt,
+		UpdatedAt: db.UpdatedAt,
+		Title:     db.Title,
+		Url:       db.Url,
+		UserId:    db.UserID,
 	}
 }
