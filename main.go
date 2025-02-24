@@ -5,13 +5,14 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 	"github.com/tuanpq1998/my-first-go/internal/database"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type apiConfig struct {
@@ -60,10 +61,12 @@ func main() {
 		log.Fatalf("Couldnt ping to database: %v", err)
 	}
 
+	db := database.New(conn)
 	apiCfg := apiConfig{
-		DB: database.New(conn),
+		DB: db,
 	}
 
+	go startScraping(db, 10, 10*time.Second)
 	router := chi.NewRouter()
 
 	router.Use(cors.Handler(cors.Options{

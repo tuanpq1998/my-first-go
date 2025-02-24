@@ -14,7 +14,7 @@ import (
 const createFeed = `-- name: CreateFeed :one
 INSERT INTO feeds (id, created_at, updated_at, title, url, user_id)
 VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, created_at, updated_at, title, description, url, user_id
+RETURNING id, created_at, updated_at, title, description, url, user_id, last_updated_at
 `
 
 type CreateFeedParams struct {
@@ -44,12 +44,13 @@ func (q *Queries) CreateFeed(ctx context.Context, arg CreateFeedParams) (Feed, e
 		&i.Description,
 		&i.Url,
 		&i.UserID,
+		&i.LastUpdatedAt,
 	)
 	return i, err
 }
 
 const getAllFeeds = `-- name: GetAllFeeds :many
-SELECT id, created_at, updated_at, title, description, url, user_id FROM feeds
+SELECT id, created_at, updated_at, title, description, url, user_id, last_updated_at FROM feeds
 `
 
 func (q *Queries) GetAllFeeds(ctx context.Context) ([]Feed, error) {
@@ -69,6 +70,7 @@ func (q *Queries) GetAllFeeds(ctx context.Context) ([]Feed, error) {
 			&i.Description,
 			&i.Url,
 			&i.UserID,
+			&i.LastUpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -78,4 +80,62 @@ func (q *Queries) GetAllFeeds(ctx context.Context) ([]Feed, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const getNextFeedsToFetch = `-- name: GetNextFeedsToFetch :many
+SELECT id, created_at, updated_at, title, description, url, user_id, last_updated_at FROM feeds
+ORDER BY last_updated_at ASC NULLS FIRST
+LIMIT $1
+`
+
+func (q *Queries) GetNextFeedsToFetch(ctx context.Context, limit int32) ([]Feed, error) {
+	rows, err := q.db.Query(ctx, getNextFeedsToFetch, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Feed
+	for rows.Next() {
+		var i Feed
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Title,
+			&i.Description,
+			&i.Url,
+			&i.UserID,
+			&i.LastUpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const markFeedAsFetched = `-- name: MarkFeedAsFetched :one
+UPDATE feeds
+SET last_updated_at = NOW(), updated_at = NOW() 
+WHERE id = $1
+RETURNING id, created_at, updated_at, title, description, url, user_id, last_updated_at
+`
+
+func (q *Queries) MarkFeedAsFetched(ctx context.Context, id pgtype.UUID) (Feed, error) {
+	row := q.db.QueryRow(ctx, markFeedAsFetched, id)
+	var i Feed
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Title,
+		&i.Description,
+		&i.Url,
+		&i.UserID,
+		&i.LastUpdatedAt,
+	)
+	return i, err
 }
