@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-chi/chi"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 
@@ -181,7 +180,7 @@ func (apiCfg apiConfig) handlerGetFeedFollows(w http.ResponseWriter, r *http.Req
 }
 
 func (apiCfg *apiConfig) handlerDeleteFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {
-	feedFollowIdStr := chi.URLParam(r, "feedFollowId")
+	feedFollowIdStr := r.PathValue("feedFollowId")
 
 	feedFollowId, err := uuid.Parse(feedFollowIdStr)
 	if err != nil {
