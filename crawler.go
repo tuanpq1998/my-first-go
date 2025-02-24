@@ -56,6 +56,7 @@ func scrapeFeed(db *database.Queries, feed database.Feed, wg *sync.WaitGroup) {
 			description.Valid = true
 		}
 
+		// TODO: handle different time formart of publishDate
 		publishedAt, err := time.Parse(time.RFC1123Z, rssItem.PublishDate)
 		if err != nil {
 			// log.Println("Crawler::scrapeFeed::ParseTime::error", err)
