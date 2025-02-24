@@ -31,3 +31,4 @@
 
 - this project follows [youtube tutorial](https://www.youtube.com/watch?v=un6ZyFkqFKo) but have some changes due to some dependencies out of date
 - use `pgx/v5` lastest
+- use native `net/http` instead of `go-chi`: [branch `native-net/http`](/tree/native-net/http) - manual: https://www.youtube.com/watch?v=H7tbjKFSg58
