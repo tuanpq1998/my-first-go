@@ -112,3 +112,57 @@ func (apiCfg apiConfig) handlerGetFeeds(w http.ResponseWriter, r *http.Request) 
 	}
 	respondWithJSON(w, 201, transformArrToFeedDto(feeds))
 }
+
+func (apiCfg *apiConfig) handlerCreateFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {
+	type parameters struct {
+		// FeedIdStr string `json:"feed_id"`
+		FeedId uuid.UUID `json:"feed_id"`
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	params := parameters{}
+	err := decoder.Decode(&params)
+	if err != nil {
+		log.Println("handlerCreateFeedFollow::JSONDecode", err)
+		respondWithError(w, 400, "decode JSON failed")
+		return
+	}
+
+	//parse uuid
+	// feedId, err := uuid.Parse(params.FeedIdStr)
+	// if err != nil {
+	// 	log.Println("handlerCreateFeedFollow::UUIDParse", err)
+	// 	respondWithError(w, 400, "parse feed_id failed")
+	// 	return
+	// }
+
+	feedFollow, err := apiCfg.DB.CreateFeedFollow(r.Context(), database.CreateFeedFollowParams{
+		ID: pgtype.UUID{
+			Bytes: uuid.New(),
+			Valid: true,
+		},
+		CreatedAt: pgtype.Timestamp{
+			Time:  time.Now().UTC(),
+			Valid: true,
+		},
+		UpdatedAt: pgtype.Timestamp{
+			Time:  time.Now().UTC(),
+			Valid: true,
+		},
+		UserID: user.ID,
+		// FeedID: pgtype.UUID{
+		// 	Bytes: feedId,
+		// 	Valid: true,
+		// },
+		FeedID: pgtype.UUID{
+			Bytes: params.FeedId,
+			Valid: true,
+		},
+	})
+	if err != nil {
+		log.Println("handlerCreateFeedFollow::CreateFeedFollow::error", err)
+		respondWithError(w, 400, "couldnt create feed follow")
+		return
+	}
+	respondWithJSON(w, 201, transformToFeedFollowDto(feedFollow))
+}

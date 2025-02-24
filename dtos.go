@@ -22,6 +22,14 @@ type FeedDto struct {
 	UserId    pgtype.UUID      `json:"user_id"`
 }
 
+type FeedFollowDto struct {
+	ID        pgtype.UUID      `json:"id"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
+	UpdatedAt pgtype.Timestamp `json:"updated_at"`
+	UserId    pgtype.UUID      `json:"user_id"`
+	FeedId    pgtype.UUID      `json:"feed_id"`
+}
+
 func transformToUserDto(dbUser database.User) UserDto {
 	return UserDto{
 		ID:        dbUser.ID,
@@ -49,4 +57,14 @@ func transformArrToFeedDto(db []database.Feed) []FeedDto {
 		feeds = append(feeds, transformToFeedDto(feed))
 	}
 	return feeds
+}
+
+func transformToFeedFollowDto(db database.FeedFollow) FeedFollowDto {
+	return FeedFollowDto{
+		ID:        db.ID,
+		CreatedAt: db.CreatedAt,
+		UpdatedAt: db.UpdatedAt,
+		UserId:    db.UserID,
+		FeedId:    db.FeedID,
+	}
 }

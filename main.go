@@ -79,6 +79,8 @@ func main() {
 	v1Router.Post("/feed", apiCfg.middlewareAuth(apiCfg.handlerCreateFeed))
 	v1Router.Get("/feed", (apiCfg.handlerGetFeeds))
 
+	v1Router.Post("/feedFollow", apiCfg.middlewareAuth(apiCfg.handlerCreateFeedFollow))
+
 	router.Mount("/v1", v1Router)
 
 	server := &http.Server{
