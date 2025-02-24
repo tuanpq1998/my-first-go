@@ -19,6 +19,12 @@ type apiConfig struct {
 }
 
 func main() {
+	// feed, err := urlToFeed("https://hnrss.org/frontpage")
+	// if err != nil {
+	// 	return
+	// }
+	// log.Println(feed)
+
 	godotenv.Load()
 
 	portStr := os.Getenv("PORT")
@@ -42,7 +48,7 @@ func main() {
 	// 	DB: database.New(tx),
 	// }
 
-	conn, err := pgx.Connect(context.Background(), dbUrl)
+	conn, err := pgxpool.New(context.Background(), dbUrl)
 	if err != nil {
 		log.Fatalf("Cant connect to database: %v", err)
 	}
