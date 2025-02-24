@@ -68,3 +68,11 @@ func transformToFeedFollowDto(db database.FeedFollow) FeedFollowDto {
 		FeedId:    db.FeedID,
 	}
 }
+
+func transformArrToFeedFollowDto(db []database.FeedFollow) []FeedFollowDto {
+	feeds := []FeedFollowDto{}
+	for _, feed := range db {
+		feeds = append(feeds, transformToFeedFollowDto(feed))
+	}
+	return feeds
+}

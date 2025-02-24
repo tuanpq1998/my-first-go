@@ -110,7 +110,7 @@ func (apiCfg apiConfig) handlerGetFeeds(w http.ResponseWriter, r *http.Request) 
 		respondWithError(w, 400, "couldnt get feeds")
 		return
 	}
-	respondWithJSON(w, 201, transformArrToFeedDto(feeds))
+	respondWithJSON(w, 200, transformArrToFeedDto(feeds))
 }
 
 func (apiCfg *apiConfig) handlerCreateFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {
@@ -167,4 +167,14 @@ func (apiCfg *apiConfig) handlerCreateFeedFollow(w http.ResponseWriter, r *http.
 		return
 	}
 	respondWithJSON(w, 201, transformToFeedFollowDto(feedFollow))
+}
+
+func (apiCfg apiConfig) handlerGetFeedFollows(w http.ResponseWriter, r *http.Request, user database.User) {
+	feedFollows, err := apiCfg.DB.GetFeedFollows(r.Context(), user.ID)
+	if err != nil {
+		log.Println("handlerGetFeedFollows::GetFeedFollows::error", err)
+		respondWithError(w, 400, "couldnt get feed follows")
+		return
+	}
+	respondWithJSON(w, 200, transformArrToFeedFollowDto(feedFollows))
 }
