@@ -7,10 +7,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/go-chi/chi"
-	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 	"github.com/tuanpq1998/my-first-go/internal/database"
+	"github.com/tuanpq1998/my-first-go/middlewares"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -66,37 +65,28 @@ func main() {
 		DB: db,
 	}
 
-	router := chi.NewRouter()
+	router := http.NewServeMux()
 
-	router.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://*", "http://*"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"*"},
-		ExposedHeaders:   []string{"Link"},
-		AllowCredentials: false,
-		MaxAge:           300,
-	}))
+	v1Router := http.NewServeMux()
+	v1Router.HandleFunc("GET /healthz", handlerReadiness)
+	v1Router.HandleFunc("GET /error", handlerErr)
 
-	v1Router := chi.NewRouter()
-	v1Router.Get("/healthz", handlerReadiness)
-	v1Router.Get("/error", handlerErr)
+	v1Router.HandleFunc("POST /user", apiCfg.handlerCreateUser)
+	v1Router.HandleFunc("GET /user", apiCfg.middlewareAuth(apiCfg.handlerGetUserByKey))
 
-	v1Router.Post("/user", apiCfg.handlerCreateUser)
-	v1Router.Get("/user", apiCfg.middlewareAuth(apiCfg.handlerGetUserByKey))
+	v1Router.HandleFunc("POST /feed", apiCfg.middlewareAuth(apiCfg.handlerCreateFeed))
+	v1Router.HandleFunc("GET /feed", (apiCfg.handlerGetFeeds))
 
-	v1Router.Post("/feed", apiCfg.middlewareAuth(apiCfg.handlerCreateFeed))
-	v1Router.Get("/feed", (apiCfg.handlerGetFeeds))
+	v1Router.HandleFunc("POST /feedFollow", apiCfg.middlewareAuth(apiCfg.handlerCreateFeedFollow))
+	v1Router.HandleFunc("GET /feedFollow", apiCfg.middlewareAuth(apiCfg.handlerGetFeedFollows))
+	v1Router.HandleFunc("DELETE /feedFollow/{feedFollowId}", apiCfg.middlewareAuth(apiCfg.handlerDeleteFeedFollow))
 
-	v1Router.Post("/feedFollow", apiCfg.middlewareAuth(apiCfg.handlerCreateFeedFollow))
-	v1Router.Get("/feedFollow", apiCfg.middlewareAuth(apiCfg.handlerGetFeedFollows))
-	v1Router.Delete("/feedFollow/{feedFollowId}", apiCfg.middlewareAuth(apiCfg.handlerDeleteFeedFollow))
+	v1Router.HandleFunc("GET /posts", apiCfg.middlewareAuth(apiCfg.handlerGetPostsForUser))
 
-	v1Router.Get("/posts", apiCfg.middlewareAuth(apiCfg.handlerGetPostsForUser))
-
-	router.Mount("/v1", v1Router)
+	router.Handle("/v1/", http.StripPrefix("/v1", v1Router))
 
 	server := &http.Server{
-		Handler: router,
+		Handler: middlewares.AllowCors(middlewares.HttpLogging(router)),
 		Addr:    ":" + portStr,
 	}
 
