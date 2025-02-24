@@ -136,6 +136,8 @@ func (apiCfg *apiConfig) handlerCreateFeedFollow(w http.ResponseWriter, r *http.
 	// 	return
 	// }
 
+	// TODO: did this feed_id exist AND did feed follow with this feed_id and user_id has existed?
+
 	feedFollow, err := apiCfg.DB.CreateFeedFollow(r.Context(), database.CreateFeedFollowParams{
 		ID: pgtype.UUID{
 			Bytes: uuid.New(),
