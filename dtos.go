@@ -30,6 +30,17 @@ type FeedFollowDto struct {
 	FeedId    pgtype.UUID      `json:"feed_id"`
 }
 
+type PostDto struct {
+	ID          pgtype.UUID      `json:"id"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
+	Title       string           `json:"title"`
+	Description *string          `json:"description"`
+	PublishedAt pgtype.Timestamp `json:"published_at"`
+	Url         string           `json:"url"`
+	FeedID      pgtype.UUID      `json:"feed_id"`
+}
+
 func transformToUserDto(dbUser database.User) UserDto {
 	return UserDto{
 		ID:        dbUser.ID,
@@ -73,6 +84,32 @@ func transformArrToFeedFollowDto(db []database.FeedFollow) []FeedFollowDto {
 	feeds := []FeedFollowDto{}
 	for _, feed := range db {
 		feeds = append(feeds, transformToFeedFollowDto(feed))
+	}
+	return feeds
+}
+
+func transformToPostDto(db database.Post) PostDto {
+	var description *string
+	if db.Description.Valid {
+		description = &db.Description.String
+	}
+
+	return PostDto{
+		ID:          db.ID,
+		CreatedAt:   db.CreatedAt,
+		UpdatedAt:   db.UpdatedAt,
+		Title:       db.Title,
+		Url:         db.Url,
+		Description: description,
+		PublishedAt: db.PublishedAt,
+		FeedID:      db.FeedID,
+	}
+}
+
+func transformArrToPostDto(db []database.Post) []PostDto {
+	feeds := []PostDto{}
+	for _, feed := range db {
+		feeds = append(feeds, transformToPostDto(feed))
 	}
 	return feeds
 }

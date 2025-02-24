@@ -66,7 +66,6 @@ func main() {
 		DB: db,
 	}
 
-	go startScraping(db, 10, 10*time.Second)
 	router := chi.NewRouter()
 
 	router.Use(cors.Handler(cors.Options{
@@ -92,6 +91,8 @@ func main() {
 	v1Router.Get("/feedFollow", apiCfg.middlewareAuth(apiCfg.handlerGetFeedFollows))
 	v1Router.Delete("/feedFollow/{feedFollowId}", apiCfg.middlewareAuth(apiCfg.handlerDeleteFeedFollow))
 
+	v1Router.Get("/posts", apiCfg.middlewareAuth(apiCfg.handlerGetPostsForUser))
+
 	router.Mount("/v1", v1Router)
 
 	server := &http.Server{
@@ -100,6 +101,7 @@ func main() {
 	}
 
 	log.Println("Server started on", server.Addr)
+	go startScraping(db, 10, time.Minute)
 
 	err = server.ListenAndServe()
 	if err != nil {
